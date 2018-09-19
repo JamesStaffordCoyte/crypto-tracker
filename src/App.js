@@ -1,26 +1,46 @@
+/* API can only receive 100 calls per day in the free version otherwise error code 429 is returned */
+
 import React, { Component } from 'react';
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
 
-const API_KEY = "EFFBB256-59A7-4C84-89BC-B2E09260A2EA";
-const URL = "https://rest.coinapi.io/v1/assets?apikey=";
+// alternate API_KEY = EFFBB256-59A7-4C84-89BC-B2E09260A2EA
+const API_KEY = "apikey=AED0CD5E-31C5-49EB-BD75-9DB97F610378";
+const URL = "https://rest.coinapi.io/v1/";
+const ASSETS = "assets";
+const EXCHANGE = "exchangerate/"
 
-const getPriceURL = "https://rest.coinapi.io/v1/exchangerate/"
 
-
-
-
+// TODO: load all together at first
+// TODO: add style
 
 // uppercase the first letter and lowercase the rest
-// TODO: add check for spaces
 function toTitleCase(str) {
-  let newStr = str[0].toUpperCase();
-  for (let i = 1; i < str.length; i++) {
-    newStr += str[i].toLowerCase();
-  }
+  let arr = str.split(' ');
+  let newStr = '';
+  arr.forEach((item) => {
+
+    let word = '';
+    try {
+      word = item[0].toUpperCase();
+    } catch(e) {
+      console.log(e);
+    }
+
+    for (let i = 1; i < item.length; i++) {
+      word += item[i].toLowerCase();
+    }
+    if (arr.length === 1 || arr[arr.length -1] === item) {
+      newStr += word;
+    } else {
+        newStr += `${word} 333`;
+    }
+  });
   return newStr;
 }
+
+//console.log(toTitleCase('hello '));
 
 class App extends Component {
   constructor(props) {
@@ -73,7 +93,8 @@ class App extends Component {
     const {currency} = this.state;
     console.log(this.state)
     //BTC/USD?apikey=EFFBB256-59A7-4C84-89BC-B2E09260A2EA";
-    axios(`${getPriceURL}${asset_id}/${currency}?apikey=${API_KEY}`)
+    axios(`${URL}${EXCHANGE}${asset_id}/${currency}?${API_KEY}`)
+
       .then((result) => {
         this.setResult(token, result.data.rate);
       })
@@ -83,7 +104,7 @@ class App extends Component {
   // looks up a given cryptocurrency
   fetchData(searchedTerm) {
     let titleCaseSearch = toTitleCase(searchedTerm);
-    axios(`${URL}${API_KEY}`)
+    axios(`${URL}${ASSETS}?${API_KEY}`)
       .then((result) => {
         // TODO: seperate out
         const isCrypto = item =>  item.name === titleCaseSearch || item.asset_id === searchedTerm.toUpperCase();
@@ -123,7 +144,7 @@ class App extends Component {
       <div className="App">
        <h1>Welcome to Crypto Tokens Quick Quotes </h1>
         <p className="App-intro">
-          <p>To get started you can look up any cryptocurrency by their name or by their symbol </p>
+          To get started you can look up any cryptocurrency by their name or by their symbol
         </p>
 
         <Search
@@ -174,7 +195,7 @@ class Search extends Component {
       <div>
         <form onSubmit={onSubmit}>
           <input
-            autofocus="true"
+            autoFocus={true}
             className="search-input"
             type="text"
             placeholder="Search"
